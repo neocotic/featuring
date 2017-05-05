@@ -1,0 +1,44 @@
+{
+  "name": "featuring",
+  "version": "0.1.0alpha",
+  "description": "Simple lightweight immutable feature toggle implementation",
+  "homepage": "https://github.com/NotNinja/featuring",
+  "authors": [
+    {
+      "name": "Alasdair Mercer",
+      "email": "mercer.alasdair@gmail.com",
+      "homepage": "https://not.ninja"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "feature",
+    "toggle",
+    "gate",
+    "guard",
+    "flipper",
+    "switch"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NotNinja/featuring.git"
+  },
+  "main": "dist/featuring.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "ignore": [
+    "coverage/",
+    "src/",
+    "test/",
+    ".*",
+    "AUTHORS.md",
+    "CHANGES.md",
+    "CONTRIBUTING.md",
+    "Gruntfile.js",
+    "package.json",
+    "README.md"
+  ]
+}
