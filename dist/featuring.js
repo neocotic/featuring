@@ -177,13 +177,13 @@
      * @memberof Feature#
      */
     verify: function() {
-      var name, scope;
+      var formattedName, formattedScope;
 
       if (!this.active()) {
-        name = '"' + this._name + '"';
-        scope = isString(this._scope) ? '"' + this._scope + '"' : 'global';
+        formattedName = '"' + this._name + '"';
+        formattedScope = isString(this._scope) ? '"' + this._scope + '"' : 'global';
 
-        throw new Error(name + ' feature in ' + scope + ' scope is not active');
+        throw new Error(formattedName + ' feature in ' + formattedScope + ' scope is not active');
       }
 
       return this;
@@ -278,7 +278,7 @@
   }
 
   /**
-   * Returns whether all of the named features are active within the specified <code>scope</scope>.
+   * Returns whether <b>all</b> of the named features are active within the specified <code>scope</scope>.
    *
    * Each item within <code>names</code> must <b>exactly</b> match that of the known feature, including its case.
    *
@@ -305,7 +305,7 @@
    * //=> false
    * featuring.active([ 'foo', 'bar' ], 'example');
    * //=> false
-   * featuring.active('FOO').active();
+   * featuring.active('FOO');
    * //=> false
    *
    * featuring.init([ 'FIZZ', 'BUZZ' ]);
@@ -346,7 +346,87 @@
   };
 
   /**
-   * Returns the names of all active features within the specified <code>scope</scope>.
+   * Returns whether <b>any</b> of the named features are active within the specified <code>scope</scope>.
+   *
+   * Each item within <code>names</code> must <b>exactly</b> match that of the known feature, including its case.
+   *
+   * <code>scope</code> is optional and will default to a global/shared scope, however, it is recommended that libraries
+   * and frameworks always specify <code>scope</code> (which couldn't be easier via {@link featuring.using}) so that
+   * applications are free to use the global scope freely, unless a library/framework plans to package the featuring
+   * library within their own distribution bundle so that it's only used by themselves. Like <code>names</code>,
+   * <code>scope</code> is case sensitive.
+   *
+   * This method will return <code>true</code> if <code>scope</code> has been initialized and contains at least one of
+   * <code>names</code>.
+   *
+   * @example
+   * <pre>
+   * var featuring = require('featuring');
+   *
+   * featuring.init([ 'FOO', 'BAR' ], 'example');
+   *
+   * featuring.active.any('FOO', 'example');
+   * //=> true
+   * featuring.active.any([ 'FOO', 'BAR' ], 'example');
+   * //=> true
+   * featuring.active.any([ 'FOO', 'BUZZ' ], 'example');
+   * //=> true
+   * featuring.active.any([ 'foo', 'bar' ], 'example');
+   * //=> false
+   * featuring.active.any('FOO');
+   * //=> false
+   *
+   * featuring.init([ 'FIZZ', 'BUZZ' ]);
+   *
+   * featuring.active.any('FIZZ', 'example');
+   * //=> false
+   * featuring.active.any([ 'FIZZ', 'BUZZ' ]);
+   * //=> true
+   *
+   * featuring.active.any([]);
+   * //=> false
+   * </pre>
+   * @param {string|string[]} names - the names of the features to be checked
+   * @param {string} [scope] - the scope in which the features are to be checked (may be <code>null</code>, defaults to
+   * global/shared)
+   * @return {boolean} <code>true</code> if any of the features are active; otherwise <code>false</code>.
+   * @public
+   * @static
+   * @memberof featuring.active
+   */
+  featuring.active.any = function(names, scope) {
+    if (isString(names)) {
+      names = [ names ];
+    }
+
+    var feature;
+
+    for (var i = 0, length = names.length; i < length; i++) {
+      feature = new Feature(names[i], scope);
+
+      if (feature.active()) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  /**
+   * An alias for the {@link featuring.active.any} method.
+   *
+   * @param {string|string[]} names - the names of the features to be checked
+   * @param {string} [scope] - the scope in which the features are to be checked (may be <code>null</code>, defaults to
+   * global/shared)
+   * @return {boolean} <code>true</code> if any of the features are active; otherwise <code>false</code>.
+   * @public
+   * @static
+   * @memberof featuring
+   */
+  featuring.anyActive = featuring.active.any;
+
+  /**
+   * Returns the names of all of the active features within the specified <code>scope</scope>.
    *
    * <code>scope</code> is optional and will default to a global/shared scope, however, it is recommended that libraries
    * and frameworks always specify <code>scope</code> (which couldn't be easier via {@link featuring.using}) so that
@@ -543,21 +623,27 @@
     var boundFeaturing = applyScope(featuring, scope);
     applyScopeToAll(featuring, boundFeaturing, [
       'active',
+      'anyActive',
       'get',
       'init',
       'initialized',
       'verify',
-      'when'
+      'verifyAny',
+      'when',
+      'whenAny'
     ], scope);
 
+    boundFeaturing.active.any = boundFeaturing.anyActive;
     boundFeaturing.using = featuring.using;
+    boundFeaturing.verify.any = boundFeaturing.verifyAny;
+    boundFeaturing.when.any = boundFeaturing.whenAny;
 
     return boundFeaturing;
   };
 
   /**
-   * Verifies that all of the named features are active within the specified <code>scope</code> and throws and error if
-   * they are not.
+   * Verifies that <b>all</b> of the named features are active within the specified <code>scope</code> and throws and
+   * error if they are not.
    *
    * Each item within <code>names</code> must <b>exactly</b> match that of the known feature, including its case.
    *
@@ -570,8 +656,7 @@
    * This method is useful for fail-fast sitations where you simply want your code to break when the named features are
    * not active.
    *
-   * The features are only considered active if <code>scope</code> has been initialized and contains all
-   * <code>names</code>.
+   * This method will throw an error unless <code>scope</code> has been initialized and contains all <code>names</code>.
    *
    * @example
    * <pre>
@@ -587,10 +672,18 @@
    *   console.error(error);
    *   //=> "Error: "BUZZ" feature in "example" scope is not active"
    * }
+   * try {
+   *   featuring.verify([ 'foo', 'bar' ], 'example');
+   * } catch (error) {
+   *   console.error(error);
+   *   //=> "Error: "foo" feature in "example" scope is not active"
+   * }
    *
    * featuring.init([ 'FIZZ', 'BUZZ' ]);
    *
    * featuring.verify([ 'FIZZ', 'BUZZ' ]);
+   *
+   * featuring.verify([]);
    * </pre>
    * @param {string|string[]} names - the names of the features to be verified
    * @param {string} [scope] - the scope in which the features are to be verified (may be <code>null</code>, defaults to
@@ -617,7 +710,86 @@
   };
 
   /**
-   * Invokes the specified function only when all named features are active within the specified <code>scope</code>.
+   * Verifies that <b>any</b> of the named features are active within the specified <code>scope</code> and throws and
+   * error if this is not the case.
+   *
+   * Each item within <code>names</code> must <b>exactly</b> match that of the known feature, including its case.
+   *
+   * <code>scope</code> is optional and will default to a global/shared scope, however, it is recommended that libraries
+   * and frameworks always specify <code>scope</code> (which couldn't be easier via {@link featuring.using}) so that
+   * applications are free to use the global scope freely, unless a library/framework plans to package the featuring
+   * library within their own distribution bundle so that it's only used by themselves. Like <code>names</code>,
+   * <code>scope</code> is case sensitive.
+   *
+   * This method is useful for fail-fast sitations where you simply want your code to break when none of the named
+   * features are active.
+   *
+   * This method will throw an error unless <code>scope</code> has been initialized and contains at least one of
+   * <code>names</code>.
+   *
+   * @example
+   * <pre>
+   * var featuring = require('featuring');
+   *
+   * featuring.init([ 'FOO', 'BAR' ], 'example');
+   *
+   * featuring.verify.any('FOO', 'example');
+   * featuring.verify.any([ 'FOO', 'BAR' ], 'example');
+   * featuring.verify.any([ 'FOO', 'BUZZ' ], 'example');
+   * try {
+   *   featuring.verify.any([ 'foo', 'bar' ], 'example');
+   * } catch (error) {
+   *   console.error(error);
+   *   //=> "Error: No named features in "example" scope are active"
+   * }
+   *
+   * featuring.init([ 'FIZZ', 'BUZZ' ]);
+   *
+   * featuring.verify.any([ 'FIZZ', 'BUZZ' ]);
+   *
+   * try {
+   *   featuring.verify.any([]);
+   * } catch (error) {
+   *   console.error(error);
+   *   //=> "Error: No named features in global scope are active"
+   * }
+   * </pre>
+   * @param {string|string[]} names - the names of the features to be verified
+   * @param {string} [scope] - the scope in which the features are to be verified (may be <code>null</code>, defaults to
+   * global/shared)
+   * @return {Function} A reference to {@link featuring} for chaining purposes.
+   * @throws {Error} If all of the named features are not active.
+   * @public
+   * @static
+   * @memberof featuring.verify
+   */
+  featuring.verify.any = function(names, scope) {
+    if (featuring.active.any(names, scope)) {
+      return featuring;
+    }
+
+    var formattedScope = isString(scope) ? '"' + scope + '"' : 'global';
+
+    throw new Error('No named features in ' + formattedScope + ' scope are active');
+  };
+
+  /**
+   * An alias for the {@link featuring.verify.any} method.
+   *
+   * @param {string|string[]} names - the names of the features to be verified
+   * @param {string} [scope] - the scope in which the features are to be verified (may be <code>null</code>, defaults to
+   * global/shared)
+   * @return {Function} A reference to {@link featuring} for chaining purposes.
+   * @throws {Error} If all of the named features are not active.
+   * @public
+   * @static
+   * @memberof featuring
+   */
+  featuring.verifyAny = featuring.verify.any;
+
+  /**
+   * Invokes the specified function only when <b>all</b> of the named features are active within the specified
+   * <code>scope</code>.
    *
    * Each item within <code>names</code> must <b>exactly</b> match that of the known feature, including its case.
    *
@@ -631,7 +803,7 @@
    * large code. It helps prevent potential scoping issues (e.g. from variable hoisting) and can even be simpler to
    * replace with IIFEs, when taking that route.
    *
-   * The features are only considered active if <code>scope</code> has been initialized and contains all
+   * This method will only invoke <code>func</code> if <code>scope</code> has been initialized and contains all
    * <code>names</code>.
    *
    * @example
@@ -649,10 +821,17 @@
    * featuring.when([ 'FOO', 'BUZZ' ], 'example', function() {
    *   // Never called
    * });
+   * featuring.when([ 'foo', 'bar' ], 'example', function() {
+   *   // Never called
+   * });
    *
    * featuring.init([ 'FIZZ', 'BUZZ' ]);
    *
    * featuring.when([ 'FIZZ', 'BUZZ' ], function() {
+   *   // ...
+   * });
+   *
+   * featuring.when([], function() {
    *   // ...
    * });
    * </pre>
@@ -678,6 +857,92 @@
 
     return featuring;
   };
+
+  /**
+   * Invokes the specified function only when <b>any</b> of the named features are active within the specified
+   * <code>scope</code>.
+   *
+   * Each item within <code>names</code> must <b>exactly</b> match that of the known feature, including its case.
+   *
+   * <code>scope</code> is optional and will default to a global/shared scope, however, it is recommended that libraries
+   * and frameworks always specify <code>scope</code> (which couldn't be easier via {@link featuring.using}) so that
+   * applications are free to use the global scope freely, unless a library/framework plans to package the featuring
+   * library within their own distribution bundle so that it's only used by themselves. Like <code>names</code>,
+   * <code>scope</code> is case sensitive.
+   *
+   * This method is often preferred over using {@link featuring.active.any} within an <code>if</code> expression when
+   * wrapping large code. It helps prevent potential scoping issues (e.g. from variable hoisting) and can even be simpler
+   * to replace with IIFEs, when taking that route.
+   *
+   * This method will only invoke <code>func</code> if <code>scope</code> has been initialized and contains at least one
+   * of <code>names</code>.
+   *
+   * @example
+   * <pre>
+   * var featuring = require('featuring');
+   *
+   * featuring.init([ 'FOO', 'BAR' ], 'example');
+   *
+   * featuring.when.any('FOO', 'example', function() {
+   *   // ...
+   * });
+   * featuring.when.any([ 'FOO', 'BAR' ], 'example', function() {
+   *   // ...
+   * });
+   * featuring.when.any([ 'FOO', 'BUZZ' ], 'example', function() {
+   *   // ...
+   * });
+   * featuring.when.any([ 'foo', 'bar' ], 'example', function() {
+   *   // Never called
+   * });
+   *
+   * featuring.init([ 'FIZZ', 'BUZZ' ]);
+   *
+   * featuring.when.any([ 'FIZZ', 'BUZZ' ], function() {
+   *   // ...
+   * });
+   *
+   * featuring.when.any([], function() {
+   *   // Never called
+   * });
+   * </pre>
+   * @param {string|string[]} names - the names of the features for which at least one must be active in order for
+   * <code>func</code> to be invoked
+   * @param {string} [scope] - the scope in which the features are to be checked (may be <code>null</code>, defaults to
+   * global/shared)
+   * @param {Function} func - the function to be invoked when any named feature is active.
+   * @return {Function} A reference to {@link featuring} for chaining purposes.
+   * @public
+   * @static
+   * @memberof featuring.when
+   */
+  featuring.when.any = function(names, scope, func) {
+    if (isFunction(scope)) {
+      func = scope;
+      scope = null;
+    }
+
+    if (featuring.active.any(names, scope)) {
+      func();
+    }
+
+    return featuring;
+  };
+
+  /**
+   * An alias for the {@link featuring.when.any} method.
+   *
+   * @param {string|string[]} names - the names of the features for which at least one must be active in order for
+   * <code>func</code> to be invoked
+   * @param {string} [scope] - the scope in which the features are to be checked (may be <code>null</code>, defaults to
+   * global/shared)
+   * @param {Function} func - the function to be invoked when any named feature is active.
+   * @return {Function} A reference to {@link featuring} for chaining purposes.
+   * @public
+   * @static
+   * @memberof featuring
+   */
+  featuring.whenAny = featuring.when.any;
 
   /**
    * Returns a function that delegates the call to the specified <code>func</code> so that the <code>scope</code>

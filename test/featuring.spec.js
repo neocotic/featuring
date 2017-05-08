@@ -421,6 +421,103 @@ describe('featuring', function() {
     });
   });
 
+  describe('.active.any', function() {
+    it('should be case sensitive', function() {
+      featuring.init(testFeatures1, testScope);
+
+      testFeatures1.forEach(function(name) {
+        name = name.toLowerCase();
+
+        expect(featuring.active.any(name, testScope)).to.be.false;
+      });
+      testFeatures1.forEach(function(name) {
+        testScope = testScope.toUpperCase();
+
+        expect(featuring.active.any(name, testScope)).to.be.false;
+      });
+
+      var testFeatures = testFeatures1.map(function(name) {
+        return name.toLowerCase();
+      });
+
+      expect(featuring.active.any(testFeatures, testScope)).to.be.false;
+
+      testScope = testScope.toUpperCase();
+
+      expect(featuring.active.any(testFeatures1, testScope)).to.be.false;
+    });
+
+    context('when names is an empty array', function() {
+      it('should always return false', function() {
+        expect(featuring.active.any([])).to.be.false;
+
+        featuring.init(testFeatures1);
+
+        expect(featuring.active.any([])).to.be.false;
+      });
+    });
+
+    context('when scope is not specified', function() {
+      it('should return whether any feature is active in global scope', function() {
+        featuring.init(testFeatures1);
+
+        testFeatures1.forEach(function(name) {
+          expect(featuring.active.any(name)).to.be.true;
+        });
+        testFeatures2.forEach(function(name) {
+          expect(featuring.active.any(name)).to.be.false;
+        });
+
+        expect(featuring.active.any(testFeatures1)).to.be.true;
+        expect(featuring.active.any(testFeatures2)).to.be.false;
+        expect(featuring.active.any(testFeaturesAll)).to.be.true;
+      });
+
+      context('and global scope is not initialized', function() {
+        it('should always return false', function() {
+          testFeaturesAll.forEach(function(name) {
+            expect(featuring.active.any(name)).to.be.false;
+          });
+
+          expect(featuring.active.any(testFeaturesAll)).to.be.false;
+        });
+      });
+    });
+
+    context('when scope is specified', function() {
+      it('should return whether any feature is active in target scope', function() {
+        featuring.init(testFeatures1, testScope);
+
+        testFeatures1.forEach(function(name) {
+          expect(featuring.active.any(name, testScope)).to.be.true;
+        });
+        testFeatures2.forEach(function(name) {
+          expect(featuring.active.any(name, testScope)).to.be.false;
+        });
+
+        expect(featuring.active.any(testFeatures1, testScope)).to.be.true;
+        expect(featuring.active.any(testFeatures2, testScope)).to.be.false;
+        expect(featuring.active.any(testFeaturesAll, testScope)).to.be.true;
+      });
+
+      context('and target scope is not initialized', function() {
+        it('should always return false', function() {
+          testFeaturesAll.forEach(function(name) {
+            expect(featuring.active.any(name, testScope)).to.be.false;
+          });
+
+          expect(featuring.active.any(testFeaturesAll, testScope)).to.be.false;
+        });
+      });
+    });
+  });
+
+  describe('.anyActive', function() {
+    it('should be an alias for featuring.active.any', function() {
+      expect(featuring.anyActive).to.equal(featuring.active.any);
+    });
+  });
+
   describe('.get', function() {
     context('when scope is not specified', function() {
       it('should return names of active features within global scope', function() {
@@ -598,7 +695,7 @@ describe('featuring', function() {
     it('should return reference to featuring', function() {
       featuring.init(testFeatures1);
 
-      expect(featuring.verify(testFeatures1[0])).to.equal(featuring);
+      expect(featuring.verify(testFeatures1)).to.equal(featuring);
     });
 
     context('when names is an empty array', function() {
@@ -699,6 +796,153 @@ describe('featuring', function() {
           }).to.throw(Error, getVerifyErrorMessage(testFeaturesAll[0], testScope));
         });
       });
+    });
+  });
+
+  describe('.verify.any', function() {
+    it('should be case sensitive', function() {
+      featuring.init(testFeatures1, testScope);
+
+      testFeatures1.forEach(function(name) {
+        name = name.toLowerCase();
+
+        expect(function() {
+          featuring.verify.any(name, testScope);
+        }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+      });
+      testFeatures1.forEach(function(name) {
+        testScope = testScope.toUpperCase();
+
+        expect(function() {
+          featuring.verify.any(name, testScope);
+        }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+      });
+
+      var testFeatures = testFeatures1.map(function(name) {
+        return name.toLowerCase();
+      });
+
+      expect(function() {
+        featuring.verify.any(testFeatures, testScope);
+      }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+
+      testScope = testScope.toUpperCase();
+
+      expect(function() {
+        featuring.verify.any(testFeatures1, testScope);
+      }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+    });
+
+    it('should return reference to featuring', function() {
+      featuring.init(testFeatures1);
+
+      expect(featuring.verify.any(testFeatures1)).to.equal(featuring);
+    });
+
+    context('when names is an empty array', function() {
+      it('should always throw an error', function() {
+        expect(function() {
+          featuring.verify.any([]);
+        }).to.throw(Error, getVerifyAnyErrorMessage());
+
+        featuring.init(testFeatures1);
+
+        expect(function() {
+          featuring.verify.any([]);
+        }).to.throw(Error, getVerifyAnyErrorMessage());
+      });
+    });
+
+    context('when scope is not specified', function() {
+      it('should throw an error all features are not active in global scope', function() {
+        featuring.init(testFeatures1);
+
+        testFeatures1.forEach(function(name) {
+          expect(function() {
+            featuring.verify.any(name);
+          }).to.not.throw(Error, getVerifyAnyErrorMessage());
+        });
+        testFeatures2.forEach(function(name) {
+          expect(function() {
+            featuring.verify.any(name);
+          }).to.throw(Error, getVerifyAnyErrorMessage());
+        });
+
+        expect(function() {
+          featuring.verify.any(testFeatures1);
+        }).to.not.throw(Error);
+
+        expect(function() {
+          featuring.verify.any(testFeatures2);
+        }).to.throw(Error, getVerifyAnyErrorMessage());
+
+        expect(function() {
+          featuring.verify.any(testFeaturesAll);
+        }).to.not.throw(Error);
+      });
+
+      context('and global scope is not initialized', function() {
+        it('should always throw an error', function() {
+          testFeaturesAll.forEach(function(name) {
+            expect(function() {
+              featuring.verify.any(name);
+            }).to.throw(Error, getVerifyAnyErrorMessage());
+          });
+
+          expect(function() {
+            featuring.verify.any(testFeaturesAll);
+          }).to.throw(Error, getVerifyAnyErrorMessage());
+        });
+      });
+    });
+
+    context('when scope is specified', function() {
+      it('should throw an error if all features are not active in target scope', function() {
+        featuring.init(testFeatures1, testScope);
+
+        testFeatures1.forEach(function(name) {
+          expect(function() {
+            featuring.verify.any(name, testScope);
+          }).to.not.throw(Error, getVerifyAnyErrorMessage(testScope));
+        });
+        testFeatures2.forEach(function(name) {
+          expect(function() {
+            featuring.verify.any(name, testScope);
+          }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+        });
+
+        expect(function() {
+          featuring.verify.any(testFeatures1, testScope);
+        }).to.not.throw(Error);
+
+        expect(function() {
+          featuring.verify.any(testFeatures2, testScope);
+        }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+
+        expect(function() {
+          featuring.verify.any(testFeaturesAll, testScope);
+        }).to.not.throw(Error);
+      });
+
+      context('and target scope is not initialized', function() {
+        it('should always throw an error', function() {
+          testFeaturesAll.forEach(function(name) {
+            expect(function() {
+              featuring.verify.any(name, testScope);
+            }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+          });
+
+          expect(function() {
+            featuring.verify.any(testFeaturesAll, testScope);
+          }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+        });
+      });
+    });
+  });
+
+  describe('.verifyAny', function() {
+    it('should be an alias for featuring.verify.any', function() {
+      expect(featuring.verifyAny).to.equal(featuring.verify.any);
     });
   });
 
@@ -842,12 +1086,174 @@ describe('featuring', function() {
     });
   });
 
+  describe('.when.any', function() {
+    var callback;
+
+    beforeEach(function() {
+      callback = sinon.stub();
+    });
+
+    it('should be case sensitive', function() {
+      featuring.init(testFeatures1, testScope);
+
+      testFeatures1.forEach(function(name) {
+        name = name.toLowerCase();
+
+        featuring.when.any(name, testScope, callback);
+      });
+      testFeatures1.forEach(function(name) {
+        testScope = testScope.toUpperCase();
+
+        featuring.when.any(name, testScope, callback);
+      });
+
+      var testFeatures = testFeatures1.map(function(name) {
+        return name.toLowerCase();
+      });
+
+      featuring.when.any(testFeatures, testScope);
+
+      testScope = testScope.toUpperCase();
+
+      featuring.when.any(testFeatures1, testScope);
+
+      expect(callback.called).to.be.false;
+    });
+
+    it('should return reference to featuring', function() {
+      featuring.init(testFeatures1);
+
+      expect(featuring.when.any(testFeatures1, callback)).to.equal(featuring);
+    });
+
+    context('when names is an empty array', function() {
+      it('should never invoke function', function() {
+        featuring.when.any([], callback);
+
+        expect(callback.calledOnce).to.be.false;
+        callback.reset();
+
+        featuring.init(testFeatures1);
+
+        featuring.when.any([], callback);
+
+        expect(callback.calledOnce).to.be.false;
+      });
+    });
+
+    context('when scope is not specified', function() {
+      it('should invoke function when any feature is active in global scope', function() {
+        featuring.init(testFeatures1);
+
+        testFeatures1.forEach(function(name) {
+          featuring.when.any(name, callback);
+        });
+
+        expect(callback.callCount).to.equal(testFeatures1.length);
+        callback.reset();
+
+        testFeatures2.forEach(function(name) {
+          featuring.when.any(name, callback);
+        });
+
+        expect(callback.called).to.be.false;
+        callback.reset();
+
+        featuring.when.any(testFeatures1, callback);
+
+        expect(callback.calledOnce).to.be.true;
+        callback.reset();
+
+        featuring.when.any(testFeatures2, callback);
+
+        expect(callback.called).to.be.false;
+        callback.reset();
+
+        featuring.when.any(testFeaturesAll, callback);
+
+        expect(callback.calledOnce).to.be.true;
+      });
+
+      context('and global scope is not initialized', function() {
+        it('should never invoke function', function() {
+          testFeaturesAll.forEach(function(name) {
+            featuring.when.any(name, callback);
+          });
+
+          featuring.when.any(testFeaturesAll, callback);
+
+          expect(callback.called).to.be.false;
+        });
+      });
+    });
+
+    context('when scope is specified', function() {
+      it('should invoke function when any feature is active in target scope', function() {
+        featuring.init(testFeatures1, testScope);
+
+        testFeatures1.forEach(function(name) {
+          featuring.when.any(name, testScope, callback);
+        });
+
+        expect(callback.callCount).to.equal(testFeatures1.length);
+        callback.reset();
+
+        testFeatures2.forEach(function(name) {
+          featuring.when.any(name, testScope, callback);
+        });
+
+        expect(callback.called).to.be.false;
+        callback.reset();
+
+        featuring.when.any(testFeatures1, testScope, callback);
+
+        expect(callback.calledOnce).to.be.true;
+        callback.reset();
+
+        featuring.when.any(testFeatures2, testScope, callback);
+
+        expect(callback.called).to.be.false;
+        callback.reset();
+
+        featuring.when.any(testFeaturesAll, testScope, callback);
+
+        expect(callback.calledOnce).to.be.true;
+      });
+
+      context('and target scope is not initialized', function() {
+        it('should never invoke function', function() {
+          testFeaturesAll.forEach(function(name) {
+            featuring.when.any(name, testScope, callback);
+          });
+
+          featuring.when.any(testFeaturesAll, testScope, callback);
+
+          expect(callback.called).to.be.false;
+        });
+      });
+    });
+  });
+
+  describe('.whenAny', function() {
+    it('should be an alias for featuring.when.any', function() {
+      expect(featuring.whenAny).to.equal(featuring.when.any);
+    });
+  });
+
   function getInitErrorMessage(scope) {
     if (scope == null) {
       return 'Global features have already been initialized';
     }
 
     return '"' + scope + '" scope features have already been initialized';
+  }
+
+  function getVerifyAnyErrorMessage(scope) {
+    if (scope == null) {
+      return 'No named features in global scope are active';
+    }
+
+    return 'No named features in "' + scope + '" scope are active';
   }
 
   function getVerifyErrorMessage(name, scope) {
