@@ -418,7 +418,7 @@ featuring.anyActive = featuring.active.any;
  * library within their own distribution bundle so that it's only used by themselves. <code>scope</code> is case
  * sensitive.
  *
- * This method will only return the names of features that are activie within <code>scope</code> if it has been
+ * This method will only return the names of features that are active within <code>scope</code> if it has been
  * initialized. Otherwise, the returned array will be empty. It is not guaranteed that the feature names will be
  * returned in the same order in which they were passed to {@link featuring.init}.
  *
@@ -449,9 +449,13 @@ featuring.anyActive = featuring.active.any;
  * @memberof featuring
  */
 featuring.get = function(scope) {
-  var target = getMap(scope);
+  var names = [];
 
-  return target ? getNames(target) : [];
+  each(getMap(scope), function(value, name) {
+    names.push(name);
+  });
+
+  return names;
 };
 
 /**
@@ -568,6 +572,44 @@ featuring.initialized = function(scope) {
 };
 
 /**
+ * Returns all initialized scopes.
+ *
+ * This method will only return scopes that have been initialized, excluding the global/shared scope, which is not
+ * represented by this method in any way, and does not care about whether those scopes contain any active features. It
+ * is not guaranteed that the scopes will be returned in the same order in which they were passed to
+ * {@link featuring.init}.
+ *
+ * @example
+ * <pre>
+ * var featuring = require('featuring');
+ *
+ * featuring.scopes();
+ * //=> []
+ *
+ * featuring.init([ 'FOO', 'BAR' ]);
+ * featuring.init([ 'FU', 'BAZ' ], 'example');
+ * featuring.init([], 'acme');
+ *
+ * featuring.scopes();
+ * //=> [ "example", "acme" ]
+ * </pre>
+ *
+ * @return {string[]} All initialized scopes.
+ * @public
+ * @static
+ * @memberof featuring
+ */
+featuring.scopes = function() {
+  var scopes = [];
+
+  each(features, function(map, scope) {
+    scopes.push(scope);
+  });
+
+  return scopes;
+};
+
+/**
  * Returns a version of {@link featuring} that is bound (along with <i>all</i> of its methods) to the specified
  * <code>scope</code>.
  *
@@ -611,6 +653,7 @@ featuring.using = function(scope) {
     'get',
     'init',
     'initialized',
+    'scopes',
     'verify',
     'verifyAny',
     'when',
@@ -1018,6 +1061,28 @@ function createMap(names) {
 }
 
 /**
+ * Iterators over the own key/value pairs within the specified object, invoking the <code>iterator</code> function
+ * provided for each pair.
+ *
+ * @param {?Object} obj - the object whose key/value pairs are to be iterated over
+ * @param {featuring~eachCallback} iterator - the function to be called with each key/value pair
+ * @return {void}
+ * @private
+ */
+function each(obj, iterator) {
+  if (!obj) {
+    return;
+  }
+
+  for (var name in obj) {
+    /* istanbul ignore else */
+    if (Object.prototype.hasOwnProperty.call(obj, name)) {
+      iterator(obj[name], name, obj);
+    }
+  }
+}
+
+/**
  * Returns the appropriate feature mapping for the <code>scope</code> provided.
  *
  * If <code>scope</code> is <code>null</code>, this method will return the global/shared scope. Otherwise, it will
@@ -1033,28 +1098,6 @@ function createMap(names) {
  */
 function getMap(scope) {
   return isString(scope) ? features[scope] : globalFeatures;
-}
-
-/**
- * Returns the names of the features within the specifed <code>map</code>.
- *
- * This method simply reduces <code>map</code> to an array of all enumeral own property names.
- *
- * @param {Object.<string, boolean>} map - the mapping whose feature names are to be returned
- * @return {string[]} The names of all features within <code>map</code>.
- * @private
- */
-function getNames(map) {
-  var names = [];
-
-  for (var key in map) {
-    /* istanbul ignore else */
-    if (Object.prototype.hasOwnProperty.call(map, key)) {
-      names.push(key);
-    }
-  }
-
-  return names;
 }
 
 /**
@@ -1080,3 +1123,13 @@ function isString(obj) {
 }
 
 module.exports = featuring;
+
+/**
+ * A function called for each key/value pair for an object.
+ *
+ * @callback featuring~eachCallback
+ * @param {*} value - the value of the current property
+ * @param {string} name - the name of the current property
+ * @param {Object} obj - the object whose properties are being iterated over
+ * @return {void}
+ */

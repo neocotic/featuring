@@ -674,6 +674,25 @@ describe('featuring', function() {
     });
   });
 
+  describe('.scopes', function() {
+    it('should return only initialized scopes', function() {
+      expect(featuring.scopes()).to.eql([]);
+
+      featuring.init(testFeatures1);
+
+      expect(featuring.scopes()).to.eql([]);
+
+      featuring.init([], 'foo');
+      featuring.init(testFeaturesAll, 'bar');
+
+      var scopes = featuring.scopes();
+
+      expect(scopes).to.have.lengthOf(2);
+      expect(scopes).to.include('foo');
+      expect(scopes).to.include('bar');
+    });
+  });
+
   describe('.using', function() {
     var boundFeaturing;
     var callback;
@@ -686,7 +705,7 @@ describe('featuring', function() {
     });
 
     context('when scope is not specified', function() {
-      before(function() {
+      beforeEach(function() {
         boundFeaturing = featuring.using(null);
       });
 
@@ -713,6 +732,8 @@ describe('featuring', function() {
         expect(function() {
           boundFeaturing.init(testFeatures1);
         }).to.throw(Error, getInitErrorMessage());
+
+        expect(boundFeaturing.scopes()).to.eql([ testScope ]);
 
         expect(boundFeaturing.verify(testFeatures1)).to.equal(boundFeaturing);
         expect(function() {
@@ -756,7 +777,7 @@ describe('featuring', function() {
     });
 
     context('when scope is specified', function() {
-      before(function() {
+      beforeEach(function() {
         boundFeaturing = featuring.using(testScope);
       });
 
@@ -783,6 +804,8 @@ describe('featuring', function() {
         expect(function() {
           boundFeaturing.init(testFeatures2);
         }).to.throw(Error, getInitErrorMessage(testScope));
+
+        expect(boundFeaturing.scopes()).to.eql([ testScope ]);
 
         expect(function() {
           boundFeaturing.verify(testFeatures1);
