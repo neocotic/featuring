@@ -168,7 +168,7 @@
      *   featuring('FIZZ', 'example').verify();
      * } catch (error) {
      *   console.error(error);
-     *   //=> "Error: FIZZ feature is not active"
+     *   //=> "Error: "FIZZ" feature in "example" scope is not active"
      * }
      * </pre>
      * @return {Feature} A reference to this {@link Feature} for chaining purposes.
@@ -177,8 +177,13 @@
      * @memberof Feature#
      */
     verify: function() {
+      var name, scope;
+
       if (!this.active()) {
-        throw new Error(this._name + ' feature is not active');
+        name = '"' + this._name + '"';
+        scope = isString(this._scope) ? '"' + this._scope + '"' : 'global';
+
+        throw new Error(name + ' feature in ' + scope + ' scope is not active');
       }
 
       return this;
@@ -247,7 +252,7 @@
    *   featuring('foo', 'example').verify();
    * } catch (error) {
    *   console.error(error);
-   *   //=> "Error: foo feature is not active"
+   *   //=> "Error: "foo" feature in "example" scope is not active"
    * }
    * featuring('BAR').when(function() {
    *   // Never called
@@ -316,7 +321,8 @@
    * @param {string|string[]} names - the names of the features to be checked
    * @param {string} [scope] - the scope in which the features are to be checked (may be <code>null</code>, defaults to
    * global/shared)
-   * @return {boolean} <code>true</code> if all of the features are active; otherwise <code>false</code>.
+   * @return {boolean} <code>true</code> if all of the features are active or <code>names</code> is empty; otherwise
+   * <code>false</code>.
    * @public
    * @static
    * @memberof featuring
@@ -579,7 +585,7 @@
    *   featuring.verify([ 'FOO', 'BUZZ' ], 'example');
    * } catch (error) {
    *   console.error(error);
-   *   //=> "Error: BUZZ feature is not active"
+   *   //=> "Error: "BUZZ" feature in "example" scope is not active"
    * }
    *
    * featuring.init([ 'FIZZ', 'BUZZ' ]);
@@ -653,7 +659,8 @@
    * @param {string|string[]} names - the names of the features to be active in order for <code>func</code> to be invoked
    * @param {string} [scope] - the scope in which the features are to be checked (may be <code>null</code>, defaults to
    * global/shared)
-   * @param {Function} func - the function to be invoked when all named features are active
+   * @param {Function} func - the function to be invoked when all named features are active or <code>names</code> is
+   * empty.
    * @return {Function} A reference to {@link featuring} for chaining purposes.
    * @public
    * @static
