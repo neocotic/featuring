@@ -332,17 +332,11 @@
       names = [ names ];
     }
 
-    var feature;
+    return names.every(function(name) {
+      var feature = new Feature(name, scope);
 
-    for (var i = 0, length = names.length; i < length; i++) {
-      feature = new Feature(names[i], scope);
-
-      if (!feature.active()) {
-        return false;
-      }
-    }
-
-    return true;
+      return feature.active();
+    });
   };
 
   /**
@@ -399,17 +393,11 @@
       names = [ names ];
     }
 
-    var feature;
+    return names.some(function(name) {
+      var feature = new Feature(name, scope);
 
-    for (var i = 0, length = names.length; i < length; i++) {
-      feature = new Feature(names[i], scope);
-
-      if (feature.active()) {
-        return true;
-      }
-    }
-
-    return false;
+      return feature.active();
+    });
   };
 
   /**
@@ -699,12 +687,10 @@
       names = [ names ];
     }
 
-    var feature;
-
-    for (var i = 0, length = names.length; i < length; i++) {
-      feature = new Feature(names[i], scope);
+    names.forEach(function(name) {
+      var feature = new Feature(name, scope);
       feature.verify();
-    }
+    });
 
     return featuring;
   };
@@ -984,12 +970,9 @@
    * @private
    */
   function applyScopeToAll(source, target, names, scope) {
-    var name;
-
-    for (var i = 0, length = names.length; i < length; i++) {
-      name = names[i];
+    names.forEach(function(name) {
       target[name] = applyScope(source[name], scope);
-    }
+    });
   }
 
   /**
@@ -1011,9 +994,9 @@
 
     var map = {};
 
-    for (var i = 0, length = names.length; i < length; i++) {
-      map[names[i]] = true;
-    }
+    names.forEach(function(name) {
+      map[name] = true;
+    });
 
     return map;
   }
