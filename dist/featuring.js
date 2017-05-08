@@ -934,24 +934,27 @@
    * Returns a function that delegates the call to the specified <code>func</code> so that the <code>scope</code>
    * provided is always passed to it.
    *
-   * The returned function will always return the return value of calling <code>func</code>.
+   * The returned function will always return the return value of calling <code>func</code>, unless it is
+   * {@link featuring}, in which case <code>substitute</code> will be returned instead.
    *
    * @param {Function} func - the function to which <code>scope</code> is to be applied
    * @param {?string} scope - the scope to be applied (may be <code>null</code>, defaults to global/shared)
+   * @param {*} substitute - the value to be returned if <code>func</code> returns a reference to {@link featuring} (may
+   * be <code>null</code>)
    * @return {Function} A function which will always pass <code>scope</code> as the appropriate argument to
    * <code>func</code>.
    * @private
    */
-  function applyScope(func, scope) {
+  function applyScope(func, scope, substitute) {
     return function() {
       if (func.length === 1) {
-        return func(scope);
+        return checkReturn(func(scope), substitute);
       }
 
       var names = arguments[0];
       var rest = Array.prototype.slice.call(arguments, 1);
 
-      return func.apply(null, [ names, scope ].concat(rest));
+      return checkReturn(func.apply(null, [ names, scope ].concat(rest)), substitute);
     };
   }
 
@@ -960,7 +963,8 @@
    * calls to the function of the same name on the given <code>source</code> so that the <code>scope</code> provided is
    * always passed to them.
    *
-   * Each proxy function will always return the return value of calling the original function.
+   * Each proxy function will always return the return value of calling the original function, unless it is
+   * {@link featuring}, in which case <code>target</code> will be returned instead.
    *
    * @param {Object} source - the object on which the original functions belong
    * @param {Object} target - the object to which the proxy functions are to be assigned
@@ -971,8 +975,24 @@
    */
   function applyScopeToAll(source, target, names, scope) {
     names.forEach(function(name) {
-      target[name] = applyScope(source[name], scope);
+      target[name] = applyScope(source[name], scope, target);
     });
+  }
+
+  /**
+   * Checks whether the specified return <code>value</code> of a proxied method if it is a reference to {@link featuring}
+   * and, if so, returns the <code>substitute</code> instead.
+   *
+   * This method will simply return <code>value</code> if it does not reference {@link featuring}.
+   *
+   * @param {*} value - the return value to be checked (may be <code>null</code>)
+   * @param {*} substitute - the value to be returned if <code>value</code> is a reference to {@link featuring} (may be
+   * <code>null</code>)
+   * @return {*} <code>value</code> unless it is a reference to {@link featuring}, in which case <code>substitute</code>.
+   * @private
+   */
+  function checkReturn(value, substitute) {
+    return value === featuring ? substitute : value;
   }
 
   /**
@@ -1032,6 +1052,7 @@
     var names = [];
 
     for (var key in map) {
+      /* istanbul ignore else */
       if (Object.prototype.hasOwnProperty.call(map, key)) {
         names.push(key);
       }

@@ -565,6 +565,16 @@ describe('featuring', function() {
       });
 
       context('and global scope has not been initialized', function() {
+        it('should initialize global scope with specified feature', function() {
+          featuring.init(testFeaturesAll[0]);
+
+          expect(featuring(testFeaturesAll[0]).active()).to.be.true;
+
+          testFeaturesAll.slice(1).forEach(function(name) {
+            expect(featuring(name).active()).to.be.false;
+          });
+        });
+
         it('should initialize global scope with specified features', function() {
           featuring.init(testFeatures1);
 
@@ -600,6 +610,16 @@ describe('featuring', function() {
       });
 
       context('and target scope has not been initialized', function() {
+        it('should initialize target scope with specified feature', function() {
+          featuring.init(testFeaturesAll[0], testScope);
+
+          expect(featuring(testFeaturesAll[0], testScope).active()).to.be.true;
+
+          testFeaturesAll.slice(1).forEach(function(name) {
+            expect(featuring(name, testScope).active()).to.be.false;
+          });
+        });
+
         it('should initialize target scope with specified features', function() {
           featuring.init(testFeatures1, testScope);
 
@@ -654,8 +674,156 @@ describe('featuring', function() {
     });
   });
 
-  describe.skip('.using', function() {
-    // TODO: Complete
+  describe('.using', function() {
+    var boundFeaturing;
+    var callback;
+
+    beforeEach(function() {
+      callback = sinon.stub();
+
+      featuring.init(testFeatures1);
+      featuring.init(testFeatures2, testScope);
+    });
+
+    context('when scope is not specified', function() {
+      before(function() {
+        boundFeaturing = featuring.using(null);
+      });
+
+      it('should apply global scope to all methods', function() {
+        testFeatures1.forEach(function(name) {
+          expect(boundFeaturing.active(name)).to.be.true;
+        });
+        testFeatures2.forEach(function(name) {
+          expect(boundFeaturing.active(name)).to.be.false;
+        });
+
+        expect(boundFeaturing.active(testFeatures1)).to.be.true;
+        expect(boundFeaturing.active(testFeatures2)).to.be.false;
+        expect(boundFeaturing.active(testFeaturesAll)).to.be.false;
+
+        expect(boundFeaturing.active.any(testFeatures1)).to.be.true;
+        expect(boundFeaturing.active.any(testFeatures2)).to.be.false;
+        expect(boundFeaturing.active.any(testFeaturesAll)).to.be.true;
+
+        expect(boundFeaturing.anyActive).to.equal(boundFeaturing.active.any);
+
+        expect(boundFeaturing.get()).to.eql(testFeatures1);
+
+        expect(function() {
+          boundFeaturing.init(testFeatures1);
+        }).to.throw(Error, getInitErrorMessage());
+
+        expect(boundFeaturing.verify(testFeatures1)).to.equal(boundFeaturing);
+        expect(function() {
+          boundFeaturing.verify(testFeatures2);
+        }).to.throw(Error, getVerifyErrorMessage(testFeatures2[0]));
+        expect(function() {
+          boundFeaturing.verify(testFeaturesAll);
+        }).to.throw(Error, getVerifyErrorMessage(testFeatures2[0]));
+
+        expect(boundFeaturing.verify.any(testFeatures1)).to.equal(boundFeaturing);
+        expect(function() {
+          boundFeaturing.verify.any(testFeatures2);
+        }).to.throw(Error, getVerifyAnyErrorMessage());
+        expect(boundFeaturing.verify.any(testFeaturesAll)).to.equal(boundFeaturing);
+
+        expect(boundFeaturing.verifyAny).to.equal(boundFeaturing.verify.any);
+
+        expect(boundFeaturing.when(testFeatures1, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when(testFeatures2, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when(testFeaturesAll, callback)).to.equal(boundFeaturing);
+
+        expect(callback.calledOnce).to.be.true;
+        callback.reset();
+
+        expect(boundFeaturing.when.any(testFeatures1, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when.any(testFeatures2, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when.any(testFeaturesAll, callback)).to.equal(boundFeaturing);
+
+        expect(callback.callCount).to.equal(2);
+        callback.reset();
+
+        expect(boundFeaturing.whenAny).to.equal(boundFeaturing.when.any);
+
+        expect(boundFeaturing.using(testScope).active(testFeatures2)).to.be.true;
+      });
+
+      it('should ignore any scope passed to methods', function() {
+        expect(boundFeaturing.get(testScope)).to.eql(testFeatures1);
+        expect(boundFeaturing.active(testFeatures1, testScope)).to.be.true;
+      });
+    });
+
+    context('when scope is specified', function() {
+      before(function() {
+        boundFeaturing = featuring.using(testScope);
+      });
+
+      it('should apply target scope to all methods', function() {
+        testFeatures1.forEach(function(name) {
+          expect(boundFeaturing.active(name)).to.be.false;
+        });
+        testFeatures2.forEach(function(name) {
+          expect(boundFeaturing.active(name)).to.be.true;
+        });
+
+        expect(boundFeaturing.active(testFeatures1)).to.be.false;
+        expect(boundFeaturing.active(testFeatures2)).to.be.true;
+        expect(boundFeaturing.active(testFeaturesAll)).to.be.false;
+
+        expect(boundFeaturing.active.any(testFeatures1)).to.be.false;
+        expect(boundFeaturing.active.any(testFeatures2)).to.be.true;
+        expect(boundFeaturing.active.any(testFeaturesAll)).to.be.true;
+
+        expect(boundFeaturing.anyActive).to.equal(boundFeaturing.active.any);
+
+        expect(boundFeaturing.get()).to.eql(testFeatures2);
+
+        expect(function() {
+          boundFeaturing.init(testFeatures2);
+        }).to.throw(Error, getInitErrorMessage(testScope));
+
+        expect(function() {
+          boundFeaturing.verify(testFeatures1);
+        }).to.throw(Error, getVerifyErrorMessage(testFeatures1[0], testScope));
+        expect(boundFeaturing.verify(testFeatures2)).to.equal(boundFeaturing);
+        expect(function() {
+          boundFeaturing.verify(testFeaturesAll);
+        }).to.throw(Error, getVerifyErrorMessage(testFeatures1[0], testScope));
+
+        expect(function() {
+          boundFeaturing.verify.any(testFeatures1);
+        }).to.throw(Error, getVerifyAnyErrorMessage(testScope));
+        expect(boundFeaturing.verify.any(testFeatures2)).to.equal(boundFeaturing);
+        expect(boundFeaturing.verify.any(testFeaturesAll)).to.equal(boundFeaturing);
+
+        expect(boundFeaturing.verifyAny).to.equal(boundFeaturing.verify.any);
+
+        expect(boundFeaturing.when(testFeatures1, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when(testFeatures2, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when(testFeaturesAll, callback)).to.equal(boundFeaturing);
+
+        expect(callback.calledOnce).to.be.true;
+        callback.reset();
+
+        expect(boundFeaturing.when.any(testFeatures1, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when.any(testFeatures2, callback)).to.equal(boundFeaturing);
+        expect(boundFeaturing.when.any(testFeaturesAll, callback)).to.equal(boundFeaturing);
+
+        expect(callback.callCount).to.equal(2);
+        callback.reset();
+
+        expect(boundFeaturing.whenAny).to.equal(boundFeaturing.when.any);
+
+        expect(boundFeaturing.using(null).active(testFeatures1)).to.be.true;
+      });
+
+      it('should ignore any scope passed to methods', function() {
+        expect(boundFeaturing.get(null)).to.eql(testFeatures2);
+        expect(boundFeaturing.active(testFeatures2, null)).to.be.true;
+      });
+    });
   });
 
   describe('.verify', function() {
