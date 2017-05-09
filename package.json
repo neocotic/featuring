@@ -26,12 +26,12 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "codecov": "^2.1.0",
     "eslint-config-notninja": "^0.1.1",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-coveralls": "^1.0.1",
     "grunt-eslint": "^19.0.0",
     "grunt-mocha-istanbul": "^5.0.2",
     "grunt-mocha-test": "^0.13.2",
@@ -49,7 +49,7 @@
   "scripts": {
     "build": "grunt build",
     "ci": "grunt ci",
-    "report-coverage": "grunt coveralls",
+    "report-coverage": "codecov",
     "test": "grunt test"
   }
 }
