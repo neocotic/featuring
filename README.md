@@ -13,7 +13,7 @@
 [featuring](https://github.com/NotNinja/featuring) is a simple lightweight immutable feature toggle JavaScript library.
 
 [![Build Status](https://img.shields.io/travis/NotNinja/featuring/develop.svg?style=flat-square)](https://travis-ci.org/NotNinja/featuring)
-[![Coverage](https://img.shields.io/coveralls/NotNinja/featuring/develop.svg?style=flat-square)](https://coveralls.io/github/NotNinja/featuring)
+[![Coverage](https://img.shields.io/codecov/c/github/NotNinja/featuring/develop.svg?style=flat-square)](https://codecov.io/gh/NotNinja/featuring)
 [![Dev Dependency Status](https://img.shields.io/david/dev/NotNinja/featuring.svg?style=flat-square)](https://david-dm.org/NotNinja/featuring?type=dev)
 [![License](https://img.shields.io/npm/l/featuring.svg?style=flat-square)](https://github.com/NotNinja/featuring/blob/master/LICENSE.md)
 [![Release](https://img.shields.io/npm/v/featuring.svg?style=flat-square)](https://www.npmjs.com/package/featuring)
