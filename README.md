@@ -39,12 +39,106 @@ While equals should be compatible with all versions of [Node.js](https://nodejs.
 
 If you want to simply download the file to be used in the browser you can find them below:
 
-* [Development Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.js) (39kb)
-* [Production Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js) (2.5kb - [Source Map](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js.map))
+* [Development Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.js) (41kb)
+* [Production Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js) (2.6kb - [Source Map](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js.map))
 
 ## API
 
-TODO
+TODO: Complete
+
+All API methods accept an optional `scope` parameter which defaults to a global/shared scope, however, it is recommended
+that libraries and frameworks always specify `scope` (which couldn't be easier via
+[featuring.using](#featuringusingscope)) so that applications are free to use the global scope freely, unless a
+library/framework plans to package the featuring library within their own distribution bundle so that it's only used by
+themselves.
+
+All strings that are passed to the API are case sensitive.
+
+### Initialization
+
+TODO: Introduction
+
+#### `featuring.init(names[, scope])`
+
+TODO: Complete
+
+#### `featuring.initialized([scope])`
+
+TODO: Complete
+
+#### `featuring.using([scope])`
+
+TODO: Complete
+
+### Individual Features
+
+TODO: Introduction
+
+#### `featuring(name[, scope])`
+
+TODO: Complete
+
+##### `Feature#active()`
+
+TODO: Complete
+
+##### `Feature#using([scope])`
+
+TODO: Complete
+
+##### `Feature#when(func)`
+
+TODO: Complete
+
+##### `Feature#verify()`
+
+TODO: Complete
+
+### Multiple features
+
+TODO: Introduction
+
+#### `featuring.active(names[, scope])`
+
+TODO: Complete
+
+#### `featuring.active.any(names[, scope])`
+
+**Alias:** `featuring.anyActive`
+
+TODO: Complete
+
+#### `featuring.verify(names[, scope])`
+
+TODO: Complete
+
+#### `featuring.verify.any(names[, scope])`
+
+**Alias:** `featuring.verifyAny`
+
+TODO: Complete
+
+#### `featuring.when(names[, scope], func)`
+
+TODO: Complete
+
+#### `featuring.when.any(names[, scope], func)`
+
+**Alias:** `featuring.whenAny`
+
+TODO: Complete
+
+### Miscellaneous
+
+TODO: Introduction
+
+#### `featuring.get([scope])`
+
+TODO: Complete
+
+#### `featuring.scopes()`
+
+TODO: Complete
 
 ## Bugs
 
