@@ -20,7 +20,6 @@
 
 * [Install](#install)
 * [API](#api)
-* [Best Practices](#best-practices)
 * [Bugs](#bugs)
 * [Contributors](#contributors)
 * [License](#license)
@@ -40,120 +39,245 @@ While equals should be compatible with all versions of [Node.js](https://nodejs.
 
 If you want to simply download the file to be used in the browser you can find them below:
 
-* [Development Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.js) (41kb)
-* [Production Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js) (2.6kb - [Source Map](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js.map))
+* [Development Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.js) (15kb)
+* [Production Version](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js) (1.2kb - [Source Map](https://cdn.rawgit.com/NotNinja/featuring/master/dist/featuring.min.js.map))
 
 ## API
 
-TODO: Complete
+All feature names that are passed to the API are case sensitive.
 
-All API methods accept an optional `scope` parameter which defaults to a global/shared scope, however, it is recommended
-that libraries and frameworks always specify `scope` (which couldn't be easier via
-[featuring.using](#featuringusingscope)) so that applications are free to use the global scope freely, unless a
-library/framework plans to package the featuring library within their own distribution bundle so that it's only used by
-themselves.
+### `Featuring([features])`
 
-All strings that are passed to the API are case sensitive.
+Encapsulates the named active `features` provided, allowing them to be queried at any time while preventing them from
+being modified.
 
-### Initialization
+``` javascript
+var Featuring = require('featuring');
+var features = new Featuring([ 'FOO', 'BAR' ]);
+// OR:
+var featuring = require('featuring');
+var features = featuring([ 'FOO', 'BAR' ]);
 
-TODO: Introduction
+features.active('FOO');
+//=> true
+features.active([ 'FOO', 'BUZZ' ]);
+//=> false
+features.anyActive([ 'FOO', 'BAR' ]);
+//=> true
 
-#### `featuring.init(names[, scope])`
+features.get();
+//=> [ "FOO", "BAR" ]
 
-TODO: Complete
+features.verify('FOO');
+// ...
+features.verify([ 'FOO', 'BUZZ' ]);
+//=> Error("BUZZ" feature is not active)
+features.verifyAny([ 'FOO', 'BAR' ]);
+// ...
 
-#### `featuring.initialized([scope])`
+features.when('FOO', function() {
+ // ...
+});
+features.when([ 'FOO', 'BUZZ' ], function() {
+ // Never called
+});
+features.whenAny([ 'FOO', 'BAR' ], function() {
+ // ...
+});
+```
 
-TODO: Complete
+### `Featuring#active([names])`
 
-#### `featuring.using([scope])`
+Returns whether **all** of the named features are active.
 
-TODO: Complete
+``` javascript
+var features = require('featuring')([ 'FOO', 'BAR' ]);
 
-### Individual Features
+features.active('FOO');
+//=> true
+features.active('BUZZ');
+//=> false
+features.active([ 'FOO', 'BAR' ]);
+//=> true
+features.active([ 'FOO', 'BUZZ' ]);
+//=> false
+features.active([ 'foo', 'bar' ]);
+//=> false
 
-TODO: Introduction
+features.active(null);
+//=> true
+features.active([]);
+//=> true
+```
 
-#### `featuring(name[, scope])`
+### `Featuring#anyActive([names])`
 
-TODO: Complete
+**Alias:** `Featuring#active.any`
 
-##### `Feature#active()`
+Returns whether **any** of the named features are active.
 
-TODO: Complete
+``` javascript
+var features = require('featuring')([ 'FOO', 'BAR' ]);
 
-##### `Feature#using([scope])`
+features.anyActive('FOO');
+//=> true
+features.anyActive('BUZZ');
+//=> false
+features.anyActive([ 'FOO', 'BAR' ]);
+//=> true
+features.anyActive([ 'FOO', 'BUZZ' ]);
+//=> true
+features.anyActive([ 'foo', 'bar' ]);
+//=> false
 
-TODO: Complete
+features.anyActive(null);
+//=> false
+features.anyActive([]);
+//=> false
+```
 
-##### `Feature#when(func)`
+### `Featuring#get()`
 
-TODO: Complete
+Returns the names of all of the active features.
 
-##### `Feature#verify()`
+``` javascript
+var featuring = require('featuring');
 
-TODO: Complete
+featuring([]).get();
+//=> []
+featuring('FOO').get();
+//=> [ "FOO" ]
+featuring([ 'FOO', 'BAR' ]).get();
+//=> [ "FOO", "BAR" ]
+```
 
-### Multiple features
+### `Featuring#verify([names])`
 
-TODO: Introduction
+Verifies that **all** of the named features are active and throws an error if they are not.
 
-#### `featuring.active(names[, scope])`
+This method is useful for fail-fast situations where it's best if the code simply breaks when the named features are not
+active.
 
-TODO: Complete
+``` javascript
+var features = require('featuring')([ 'FOO', 'BAR' ]);
 
-#### `featuring.active.any(names[, scope])`
+features.verify('FOO');
+// ...
+features.verify('BUZZ');
+//=> Error("BUZZ" feature is not active)
+features.verify([ 'FOO', 'BAR' ]);
+//=> ...
+features.verify([ 'FOO', 'BUZZ' ]);
+//=> Error("BUZZ" feature is not active)
+features.verify([ 'foo', 'bar' ]);
+//=> Error("foo" feature is not active)
 
-**Alias:** `featuring.anyActive`
+features.verify(null);
+// ...
+features.verify([]);
+// ...
+```
 
-TODO: Complete
+### `Featuring#verifyAny([names])`
 
-#### `featuring.verify(names[, scope])`
+**Alias:** `Featuring#verify.any`
 
-TODO: Complete
+Verifies that **any** of the named features are active and throws an error if this is not the case.
 
-#### `featuring.verify.any(names[, scope])`
+This method is useful for fail-fast situations where it's best if the code simply breaks when none of the named features
+are active.
 
-**Alias:** `featuring.verifyAny`
+``` javascript
+var features = require('featuring')([ 'FOO', 'BAR' ]);
 
-TODO: Complete
+features.verifyAny('FOO');
+// ...
+features.verifyAny('BUZZ');
+//=> Error(All named features are not active)
+features.verifyAny([ 'FOO', 'BAR' ]);
+//=> ...
+features.verifyAny([ 'FOO', 'BUZZ' ]);
+// ...
+features.verifyAny([ 'foo', 'bar' ]);
+//=> Error(All named features are not active)
 
-#### `featuring.when(names[, scope], func)`
+features.verifyAny(null);
+//=> Error(All named features are not active)
+features.verifyAny([]);
+//=> Error(All named features are not active)
+```
 
-TODO: Complete
+### `Featuring#when([names, ]func)`
 
-#### `featuring.when.any(names[, scope], func)`
+Invokes the specified function only when **all** of the named features are active.
 
-**Alias:** `featuring.whenAny`
+This method is often preferred over using [Featuring#active](#featuringactivenames) within an `if` expression when
+wrapping large code as it helps to prevent potential scoping issues (e.g. from variable hoisting) and can even be
+simpler to replace with IIFEs, when taking that route.
 
-TODO: Complete
+``` javascript
+var features = require('featuring')([ 'FOO', 'BAR' ]);
 
-### Miscellaneous
+features.when('FOO', function() {
+  // ...
+});
+features.when('BUZZ', function() {
+  // Never called
+});
+features.when([ 'FOO', 'BAR' ], function() {
+  // ...
+});
+features.when([ 'FOO', 'BUZZ' ], function() {
+  // Never called
+});
+features.when([ 'foo', 'bar' ], function() {
+  // Never called
+});
 
-TODO: Introduction
+features.when(null, function() {
+  // ...
+});
+features.when([], function() {
+  // ...
+});
+```
 
-#### `featuring.get([scope])`
+### `Featuring#whenAny([names, ]func)`
 
-TODO: Complete
+**Alias:** `Featuring#when.any`
 
-#### `featuring.scopes()`
+Invokes the specified function only when **any** of the named features are active.
 
-TODO: Complete
+This method is often preferred over using [Featuring#anyActive](#featuringanyactivenames) within an `if` expression when
+wrapping large code as it helps to prevent potential scoping issues (e.g. from variable hoisting) and can even be
+simpler to replace with IIFEs, when taking that route.
 
-## Best Practices
+``` javascript
+var features = require('featuring')([ 'FOO', 'BAR' ]);
 
-As mentioned in the [API](#api) section, libraries and frameworks are advised to only ever use scopes for their
-features. This allows applications to take advantage of the global scope and avoid conflicts. If you find a library or
-framework using the global scope, please make them aware that they should be using a scope.
+features.whenAny('FOO', function() {
+  // ...
+});
+features.whenAny('BUZZ', function() {
+  // Never called
+});
+features.whenAny([ 'FOO', 'BAR' ], function() {
+  // ...
+});
+features.whenAny([ 'FOO', 'BUZZ' ], function() {
+  // ...
+});
+features.whenAny([ 'foo', 'bar' ], function() {
+  // Never called
+});
 
-Since you'll want to ensure that your code only ever checks features once they're initialized, it's recommended that you
-simply have a single module that imports featuring, initializes it with your active features, and then exports it via
-[featuring.using](#featuringusingscope). Now your code will simply import this new module, instead of directly importing
-featuring, to ensure that the same scope and features are always used throughout your code base.
-
-For simple applications, libraries, and frameworks, this module can easily be internal without causing issues, however,
-for modular projects, you may want to externalize this module so that it can be depended on by each module.
+features.whenAny(null, function() {
+  // Never called
+});
+features.whenAny([], function() {
+  // Never called
+});
+```
 
 ## Bugs
 
