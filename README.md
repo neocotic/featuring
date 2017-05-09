@@ -20,6 +20,7 @@
 
 * [Install](#install)
 * [API](#api)
+* [Best Practices](#best-practices)
 * [Bugs](#bugs)
 * [Contributors](#contributors)
 * [License](#license)
@@ -139,6 +140,20 @@ TODO: Complete
 #### `featuring.scopes()`
 
 TODO: Complete
+
+## Best Practices
+
+As mentioned in the [API](#api) section, libraries and frameworks are advised to only ever use scopes for their
+features. This allows applications to take advantage of the global scope and avoid conflicts. If you find a library or
+framework using the global scope, please make them aware that they should be using a scope.
+
+Since you'll want to ensure that your code only ever checks features once they're initialized, it's recommended that you
+simply have a single module that imports featuring, initializes it with your active features, and then exports it via
+[featuring.using](#featuringusingscope). Now your code will simply import this new module, instead of directly importing
+featuring, to ensure that the same scope and features are always used throughout your code base.
+
+For simple applications, libraries, and frameworks, this module can easily be internal without causing issues, however,
+for modular projects, you may want to externalize this module so that it can be depended on by each module.
 
 ## Bugs
 
