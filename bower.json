@@ -1,6 +1,6 @@
 {
   "name": "featuring",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple lightweight immutable feature toggle implementation",
   "homepage": "https://github.com/NotNinja/featuring",
   "authors": [
