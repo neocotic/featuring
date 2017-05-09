@@ -1,6 +1,6 @@
 {
   "name": "featuring",
-  "version": "0.1.0alpha",
+  "version": "0.1.0",
   "description": "Simple lightweight immutable feature toggle implementation",
   "homepage": "https://github.com/NotNinja/featuring",
   "bugs": {
@@ -26,12 +26,12 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "codecov": "^2.1.0",
     "eslint-config-notninja": "^0.1.1",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-coveralls": "^1.0.1",
     "grunt-eslint": "^19.0.0",
     "grunt-mocha-istanbul": "^5.0.2",
     "grunt-mocha-test": "^0.13.2",
@@ -41,14 +41,15 @@
     "mocha": "^3.2.0",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-uglify": "^1.0.1"
+    "rollup-plugin-uglify": "^1.0.1",
+    "sinon": "^2.2.0"
   },
   "main": "index.js",
   "browser": "dist/featuring.js",
   "scripts": {
     "build": "grunt build",
     "ci": "grunt ci",
-    "report-coverage": "grunt coveralls",
+    "report-coverage": "codecov",
     "test": "grunt test"
   }
 }
