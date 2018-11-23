@@ -39,8 +39,8 @@ While equals should be compatible with all versions of [Node.js](https://nodejs.
 
 If you want to simply download the file to be used in the browser you can find them below:
 
-* [Development Version](https://cdn.rawgit.com/neocotic/featuring/master/dist/featuring.js) (15kb - [Source Map](https://cdn.rawgit.com/neocotic/featuring/master/dist/featuring.js.map))
-* [Production Version](https://cdn.rawgit.com/neocotic/featuring/master/dist/featuring.min.js) (1.2kb - [Source Map](https://cdn.rawgit.com/neocotic/featuring/master/dist/featuring.min.js.map))
+* [Development Version](https://unpkg.com/featuring/dist/featuring.js) (15kb - [Source Map](https://unpkg.com/featuring/dist/featuring.js.map))
+* [Production Version](https://unpkg.com/featuring/dist/featuring.min.js) (1.2kb - [Source Map](https://unpkg.com/featuring/dist/featuring.min.js.map))
 
 ## API
 
