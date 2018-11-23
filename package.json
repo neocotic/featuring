@@ -1,15 +1,15 @@
 {
   "name": "featuring",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Simple lightweight immutable feature toggle implementation",
-  "homepage": "https://github.com/NotNinja/featuring",
+  "homepage": "https://github.com/neocotic/featuring",
   "bugs": {
-    "url": "https://github.com/NotNinja/featuring/issues"
+    "url": "https://github.com/neocotic/featuring/issues"
   },
   "author": {
     "name": "Alasdair Mercer",
     "email": "mercer.alasdair@gmail.com",
-    "url": "https://not.ninja"
+    "url": "https://neocotic.com"
   },
   "license": "MIT",
   "keywords": [
@@ -22,34 +22,35 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/NotNinja/featuring.git"
+    "url": "https://github.com/neocotic/featuring.git"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "codecov": "^2.1.0",
-    "eslint-config-notninja": "^0.1.1",
-    "grunt": "^1.0.1",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-clean": "^1.0.0",
-    "grunt-contrib-watch": "^1.0.0",
-    "grunt-eslint": "^19.0.0",
-    "grunt-mocha-istanbul": "^5.0.2",
-    "grunt-mocha-test": "^0.13.2",
-    "grunt-rollup": "^1.0.1",
-    "istanbul": "^0.4.5",
-    "load-grunt-tasks": "^3.5.2",
-    "mocha": "^3.2.0",
-    "rollup-plugin-commonjs": "^8.0.2",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-uglify": "^1.0.1",
-    "sinon": "^2.2.0"
+    "codecov": "^3.1.0",
+    "eslint": "^5.9.0",
+    "eslint-config-notninja": "^0.4.0",
+    "mocha": "^5.2.0",
+    "npm-run-all": "^4.1.3",
+    "nyc": "^13.1.0",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.67.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-uglify": "^6.0.0",
+    "sinon": "^7.1.1"
   },
   "main": "index.js",
   "browser": "dist/featuring.js",
   "scripts": {
-    "build": "grunt build",
-    "ci": "grunt ci",
-    "report-coverage": "codecov",
-    "test": "grunt test"
+    "build": "npm-run-all lint compile test",
+    "clean": "npm-run-all clean:*",
+    "clean:coverage": "rimraf coverage",
+    "clean:dist": "rimraf dist",
+    "compile": "npm run clean:dist && rollup --config",
+    "coverage": "nyc report && codecov",
+    "lint": "npm-run-all lint:*",
+    "lint:src": "eslint \"src/**/*.js\"",
+    "lint:test": "eslint \"test/**/*.js\"",
+    "test": "npm run clean:coverage && nyc mocha -R list \"test/**/*.spec.js\"",
+    "posttest": "nyc check-coverage"
   }
 }

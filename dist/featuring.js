@@ -5,7 +5,7 @@
 }(this, (function () { 'use strict';
 
   /*
-   * Copyright (C) 2017 Alasdair Mercer, !ninja
+   * Copyright (C) 2018 Alasdair Mercer
    *
    * Permission is hereby granted, free of charge, to any person obtaining a copy
    * of this software and associated documentation files (the "Software"), to deal
@@ -446,10 +446,9 @@
 
   var featuring = Featuring;
 
-  var index = featuring;
+  var featuring$1 = featuring;
 
-  return index;
+  return featuring$1;
 
 })));
-
 //# sourceMappingURL=featuring.js.map

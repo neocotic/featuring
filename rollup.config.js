@@ -22,4 +22,51 @@
 
 'use strict';
 
-module.exports = require('./src/featuring');
+var commonjs = require('rollup-plugin-commonjs');
+var nodeResolve = require('rollup-plugin-node-resolve');
+var uglify = require('rollup-plugin-uglify').uglify;
+
+var pkg = require('./package.json');
+
+module.exports = [
+  {
+    input: 'index.js',
+    output: {
+      format: 'umd',
+      file: 'dist/' + pkg.name + '.js',
+      name: pkg.name,
+      sourcemap: true,
+      amd: {
+        id: pkg.name
+      }
+    },
+    plugins: [
+      commonjs(),
+      nodeResolve()
+    ]
+  },
+  {
+    input: 'index.js',
+    output: {
+      format: 'umd',
+      file: 'dist/' + pkg.name + '.min.js',
+      name: pkg.name,
+      banner: '/*! ' + pkg.name + ' v' + pkg.version + ' | (C) ' + new Date().getFullYear() + ' ' + pkg.author.name + ' | ' + pkg.license + ' License */',
+      sourcemap: true,
+      amd: {
+        id: pkg.name
+      }
+    },
+    plugins: [
+      commonjs(),
+      nodeResolve(),
+      uglify({
+        output: {
+          comments: function(node, comment) {
+            return comment.type === 'comment2' && /^\!/.test(comment.value);
+          }
+        }
+      })
+    ]
+  }
+];

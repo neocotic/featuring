@@ -1,13 +1,13 @@
 {
   "name": "featuring",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Simple lightweight immutable feature toggle implementation",
-  "homepage": "https://github.com/NotNinja/featuring",
+  "homepage": "https://github.com/neocotic/featuring",
   "authors": [
     {
       "name": "Alasdair Mercer",
       "email": "mercer.alasdair@gmail.com",
-      "homepage": "https://not.ninja"
+      "homepage": "https://neocotic.com"
     }
   ],
   "license": "MIT",
@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/NotNinja/featuring.git"
+    "url": "https://github.com/neocotic/featuring.git"
   },
   "main": "dist/featuring.js",
   "moduleType": [
@@ -30,6 +30,7 @@
     "node"
   ],
   "ignore": [
+    ".nyc_output/",
     "coverage/",
     "src/",
     "test/",
@@ -37,7 +38,6 @@
     "AUTHORS.md",
     "CHANGES.md",
     "CONTRIBUTING.md",
-    "Gruntfile.js",
     "package.json",
     "README.md"
   ]
