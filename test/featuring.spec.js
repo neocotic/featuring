@@ -22,7 +22,7 @@
 
 'use strict';
 
-var expect = require('chai').expect;
+var assert = require('assert');
 var sinon = require('sinon');
 
 var featuring = require('../src/featuring');
@@ -39,7 +39,7 @@ describe('featuring', function() {
   });
 
   it('should return an instance', function() {
-    expect(features).to.be.an.instanceof(featuring);
+    assert.ok(features instanceof featuring);
   });
 
   it('should be a constructor', function() {
@@ -47,24 +47,24 @@ describe('featuring', function() {
     features = new featuring(testNamesActive);
     /* eslint-enable new-cap */
 
-    expect(features).to.be.an.instanceof(featuring);
+    assert.ok(features instanceof featuring);
   });
 
   it('should be immutable', function() {
     testNamesActive.shift();
     testNamesActive.push('FIZZ');
 
-    expect(features.active('FOO')).to.be.true;
-    expect(features.get()).to.eql([ 'FOO', 'BAR' ]);
-    expect(features.active('FIZZ')).to.be.false;
+    assert.ok(features.active('FOO'));
+    assert.deepEqual(features.get(), [ 'FOO', 'BAR' ]);
+    assert.ok(!features.active('FIZZ'));
   });
 
   context('when features is an empty array', function() {
     it('should contain no features', function() {
       features = featuring([]);
 
-      expect(features.active(testNamesActive[0])).to.be.false;
-      expect(features.get()).to.eql([]);
+      assert.ok(!features.active(testNamesActive[0]));
+      assert.deepEqual(features.get(), []);
     });
   });
 
@@ -73,8 +73,8 @@ describe('featuring', function() {
       var testName = testNamesActive[0];
       features = featuring(testName);
 
-      expect(features.active(testName)).to.be.true;
-      expect(features.get()).to.eql([ testName ]);
+      assert.ok(features.active(testName));
+      assert.deepEqual(features.get(), [ testName ]);
     });
   });
 
@@ -82,8 +82,8 @@ describe('featuring', function() {
     it('should contain no features', function() {
       features = featuring(null);
 
-      expect(features.active(testNamesActive[0])).to.be.false;
-      expect(features.get()).to.eql([]);
+      assert.ok(!features.active(testNamesActive[0]));
+      assert.deepEqual(features.get(), []);
     });
   });
 
@@ -92,44 +92,44 @@ describe('featuring', function() {
       testNamesActive.forEach(function(name) {
         name = name.toLowerCase();
 
-        expect(features.active(name)).to.be.false;
+        assert.ok(!features.active(name));
       });
 
       var testNames = testNamesActive.map(function(name) {
         return name.toLowerCase();
       });
 
-      expect(features.active(testNames)).to.be.false;
+      assert.ok(!features.active(testNames));
     });
 
     it('should return whether all named features are active', function() {
       testNamesActive.forEach(function(name) {
-        expect(features.active(name)).to.be.true;
+        assert.ok(features.active(name));
       });
       testNamesInactive.forEach(function(name) {
-        expect(features.active(name)).to.be.false;
+        assert.ok(!features.active(name));
       });
 
-      expect(features.active(testNamesActive)).to.be.true;
-      expect(features.active(testNamesInactive)).to.be.false;
-      expect(features.active(testNamesAll)).to.be.false;
+      assert.ok(features.active(testNamesActive));
+      assert.ok(!features.active(testNamesInactive));
+      assert.ok(!features.active(testNamesAll));
     });
 
     context('when names is an empty array', function() {
       it('should always return true', function() {
-        expect(features.active([])).to.be.true;
+        assert.ok(features.active([]));
       });
     });
 
     context('when names is null', function() {
       it('should always return true', function() {
-        expect(features.active(null)).to.be.true;
+        assert.ok(features.active(null));
       });
     });
 
     describe('.any', function() {
       it('should be an alias for Featuring#anyActive', function() {
-        expect(features.active.any).to.equal(features.anyActive);
+        assert.strictEqual(features.active.any, features.anyActive);
       });
     });
   });
@@ -139,52 +139,52 @@ describe('featuring', function() {
       testNamesActive.forEach(function(name) {
         name = name.toLowerCase();
 
-        expect(features.anyActive(name)).to.be.false;
+        assert.ok(!features.anyActive(name));
       });
 
       var testNames = testNamesActive.map(function(name) {
         return name.toLowerCase();
       });
 
-      expect(features.anyActive(testNames)).to.be.false;
+      assert.ok(!features.anyActive(testNames));
     });
 
     it('should return whether any named feature is active', function() {
       testNamesActive.forEach(function(name) {
-        expect(features.anyActive(name)).to.be.true;
+        assert.ok(features.anyActive(name));
       });
       testNamesInactive.forEach(function(name) {
-        expect(features.anyActive(name)).to.be.false;
+        assert.ok(!features.anyActive(name));
       });
 
-      expect(features.anyActive(testNamesActive)).to.be.true;
-      expect(features.anyActive(testNamesInactive)).to.be.false;
-      expect(features.anyActive(testNamesAll)).to.be.true;
+      assert.ok(features.anyActive(testNamesActive));
+      assert.ok(!features.anyActive(testNamesInactive));
+      assert.ok(features.anyActive(testNamesAll));
     });
 
     context('when names is an empty array', function() {
       it('should always return false', function() {
-        expect(features.anyActive([])).to.be.false;
+        assert.ok(!features.anyActive([]));
       });
     });
 
     context('when names is null', function() {
       it('should always return false', function() {
-        expect(features.anyActive(null)).to.be.false;
+        assert.ok(!features.anyActive(null));
       });
     });
   });
 
   describe('#get', function() {
     it('should return names of all active features', function() {
-      expect(features.get()).to.eql(testNamesActive);
+      assert.deepEqual(features.get(), testNamesActive);
     });
 
     context('when there are no active features', function() {
       it('should return an empty array', function() {
         features = featuring([]);
 
-        expect(features.get()).to.eql([]);
+        assert.deepEqual(features.get(), []);
       });
     });
   });
@@ -194,66 +194,103 @@ describe('featuring', function() {
       testNamesActive.forEach(function(name) {
         name = name.toLowerCase();
 
-        expect(function() {
-          features.verify(name);
-        }).to.throw(Error, getVerifyErrorMessage(name));
+        assert.throws(
+          function() {
+            features.verify(name);
+          },
+          function(error) {
+            return error instanceof Error && error.message === getVerifyErrorMessage(name);
+          }
+        );
       });
 
       var testNames = testNamesActive.map(function(name) {
         return name.toLowerCase();
       });
 
-      expect(function() {
-        features.verify(testNames);
-      }).to.throw(Error, getVerifyErrorMessage(testNames[0]));
+      assert.throws(
+        function() {
+          features.verify(testNames);
+        },
+        function(error) {
+          return error instanceof Error && error.message === getVerifyErrorMessage(testNames[0]);
+        }
+      );
     });
 
     it('should return reference to instance', function() {
-      expect(features.verify(testNamesActive)).to.equal(features);
+      assert.strictEqual(features.verify(testNamesActive), features);
     });
 
     it('should throw an error if any named feature is not active', function() {
       testNamesActive.forEach(function(name) {
-        expect(function() {
-          features.verify(name);
-        }).to.not.throw(Error, getVerifyErrorMessage(name));
+        assert.doesNotThrow(
+          function() {
+            features.verify(name);
+          },
+          Error
+        );
       });
       testNamesInactive.forEach(function(name) {
-        expect(function() {
-          features.verify(name);
-        }).to.throw(Error, getVerifyErrorMessage(name));
+        assert.throws(
+          function() {
+            features.verify(name);
+          },
+          function(error) {
+            return error instanceof Error && error.message === getVerifyErrorMessage(name);
+          }
+        );
       });
 
-      expect(function() {
-        features.verify(testNamesActive);
-      }).to.not.throw(Error);
-      expect(function() {
-        features.verify(testNamesInactive);
-      }).to.throw(Error, getVerifyErrorMessage(testNamesInactive[0]));
-      expect(function() {
-        features.verify(testNamesAll);
-      }).to.throw(Error, getVerifyErrorMessage(testNamesInactive[0]));
+      assert.doesNotThrow(
+        function() {
+          features.verify(testNamesActive);
+        },
+        Error
+      );
+      assert.throws(
+        function() {
+          features.verify(testNamesInactive);
+        },
+        function(error) {
+          return error instanceof Error && error.message === getVerifyErrorMessage(testNamesInactive[0]);
+        }
+      );
+      assert.throws(
+        function() {
+          features.verify(testNamesAll);
+        },
+        function(error) {
+          return error instanceof Error && error.message === getVerifyErrorMessage(testNamesInactive[0]);
+        }
+      );
     });
 
     context('when names is an empty array', function() {
       it('should never throw an error', function() {
-        expect(function() {
-          features.verify([]);
-        }).to.not.throw(Error);
+        assert.doesNotThrow(
+          function() {
+            features.verify([]);
+          },
+          Error
+        );
       });
     });
 
     context('when names is null', function() {
       it('should never throw an error', function() {
-        expect(function() {
-          features.verify(null);
-        }).to.not.throw(Error);
+        assert.doesNotThrow(
+          function() {
+            features.verify(null);
+          },
+          Error
+        );
       });
     });
 
     describe('.any', function() {
       it('should be an alias for Featuring#verifyAny', function() {
-        expect(features.verify.any).to.equal(features.verifyAny);
+        assert.strictEqual(features.verify.any, features.verifyAny);
       });
     });
   });
@@ -265,60 +302,99 @@ describe('featuring', function() {
       testNamesActive.forEach(function(name) {
         name = name.toLowerCase();
 
-        expect(function() {
-          features.verifyAny(name);
-        }).to.throw(Error, verifyAnyErrorMessage);
+        assert.throws(
+          function() {
+            features.verifyAny(name);
+          },
+          function(error) {
+            return error instanceof Error && error.message === verifyAnyErrorMessage;
+          }
+        );
       });
 
       var testNames = testNamesActive.map(function(name) {
         return name.toLowerCase();
       });
 
-      expect(function() {
-        features.verifyAny(testNames);
-      }).to.throw(Error, verifyAnyErrorMessage);
+      assert.throws(
+        function() {
+          features.verifyAny(testNames);
+        },
+        function(error) {
+          return error instanceof Error && error.message === verifyAnyErrorMessage;
+        }
+      );
     });
 
     it('should return reference to instance', function() {
-      expect(features.verifyAny(testNamesActive)).to.equal(features);
+      assert.strictEqual(features.verifyAny(testNamesActive), features);
     });
 
     it('should throw an error if all named features are not active', function() {
       testNamesActive.forEach(function(name) {
-        expect(function() {
-          features.verifyAny(name);
-        }).to.not.throw(Error, verifyAnyErrorMessage);
+        assert.doesNotThrow(
+          function() {
+            features.verifyAny(name);
+          },
+          Error
+        );
       });
       testNamesInactive.forEach(function(name) {
-        expect(function() {
-          features.verifyAny(name);
-        }).to.throw(Error, verifyAnyErrorMessage);
+        assert.throws(
+          function() {
+            features.verifyAny(name);
+          },
+          function(error) {
+            return error instanceof Error && error.message === verifyAnyErrorMessage;
+          }
+        );
       });
 
-      expect(function() {
-        features.verifyAny(testNamesActive);
-      }).to.not.throw(Error, verifyAnyErrorMessage);
-      expect(function() {
-        features.verifyAny(testNamesInactive);
-      }).to.throw(Error, verifyAnyErrorMessage);
-      expect(function() {
-        features.verifyAny(testNamesAll);
-      }).to.not.throw(Error, verifyAnyErrorMessage);
+      assert.doesNotThrow(
+        function() {
+          features.verifyAny(testNamesActive);
+        },
+        Error
+      );
+      assert.throws(
+        function() {
+          features.verifyAny(testNamesInactive);
+        },
+        function(error) {
+          return error instanceof Error && error.message === verifyAnyErrorMessage;
+        }
+      );
+      assert.doesNotThrow(
+        function() {
+          features.verifyAny(testNamesAll);
+        },
+        Error
+      );
     });
 
     context('when names is an empty array', function() {
       it('should always throw an error', function() {
-        expect(function() {
-          features.verifyAny([]);
-        }).to.throw(Error, verifyAnyErrorMessage);
+        assert.throws(
+          function() {
+            features.verifyAny([]);
+          },
+          function(error) {
+            return error instanceof Error && error.message === verifyAnyErrorMessage;
+          }
+        );
       });
     });
 
     context('when names is null', function() {
       it('should always throw an error', function() {
-        expect(function() {
-          features.verifyAny(null);
-        }).to.throw(Error, verifyAnyErrorMessage);
+        assert.throws(
+          function() {
+            features.verifyAny(null);
+          },
+          function(error) {
+            return error instanceof Error && error.message === verifyAnyErrorMessage;
+          }
+        );
       });
     });
   });
@@ -343,11 +419,11 @@ describe('featuring', function() {
 
       features.when(testNames, callback);
 
-      expect(callback.called).to.be.false;
+      assert.ok(!callback.called);
     });
 
     it('should return reference to instance', function() {
-      expect(features.when(testNamesActive, callback)).to.equal(features);
+      assert.strictEqual(features.when(testNamesActive, callback), features);
     });
 
     it('should invoke function when all named features are active', function() {
@@ -355,32 +431,32 @@ describe('featuring', function() {
         features.when(name, callback);
       });
 
-      expect(callback.callCount).to.equal(testNamesActive.length);
+      assert.equal(callback.callCount, testNamesActive.length);
       callback.reset();
 
       testNamesInactive.forEach(function(name) {
         features.when(name, callback);
       });
 
-      expect(callback.called).to.be.false;
+      assert.ok(!callback.called);
       callback.reset();
 
       features.when(testNamesActive, callback);
 
-      expect(callback.calledOnce).to.be.true;
+      assert.ok(callback.calledOnce);
       callback.reset();
 
       features.when(testNamesInactive, callback);
       features.when(testNamesAll, callback);
 
-      expect(callback.called).to.be.false;
+      assert.ok(!callback.called);
     });
 
     context('when names is an empty array', function() {
       it('should always invoke function', function() {
         features.when([], callback);
 
-        expect(callback.calledOnce).to.be.true;
+        assert.ok(callback.calledOnce);
       });
     });
 
@@ -388,7 +464,7 @@ describe('featuring', function() {
       it('should always invoke function', function() {
         features.when(callback);
 
-        expect(callback.calledOnce).to.be.true;
+        assert.ok(callback.calledOnce);
       });
     });
 
@@ -396,13 +472,13 @@ describe('featuring', function() {
       it('should always invoke function', function() {
         features.when(null, callback);
 
-        expect(callback.calledOnce).to.be.true;
+        assert.ok(callback.calledOnce);
       });
     });
 
     describe('.any', function() {
       it('should be an alias for Featuring#whenAny', function() {
-        expect(features.when.any).to.equal(features.whenAny);
+        assert.strictEqual(features.when.any, features.whenAny);
       });
     });
   });
@@ -427,11 +503,11 @@ describe('featuring', function() {
 
       features.whenAny(testNames, callback);
 
-      expect(callback.called).to.be.false;
+      assert.ok(!callback.called);
     });
 
     it('should return reference to instance', function() {
-      expect(features.whenAny(testNamesActive, callback)).to.equal(features);
+      assert.strictEqual(features.whenAny(testNamesActive, callback), features);
     });
 
     it('should invoke function when any named feature is active', function() {
@@ -439,36 +515,36 @@ describe('featuring', function() {
         features.whenAny(name, callback);
       });
 
-      expect(callback.callCount).to.equal(testNamesActive.length);
+      assert.equal(callback.callCount, testNamesActive.length);
       callback.reset();
 
       testNamesInactive.forEach(function(name) {
         features.whenAny(name, callback);
       });
 
-      expect(callback.called).to.be.false;
+      assert.ok(!callback.called);
       callback.reset();
 
       features.whenAny(testNamesActive, callback);
 
-      expect(callback.calledOnce).to.be.true;
+      assert.ok(callback.calledOnce);
       callback.reset();
 
       features.whenAny(testNamesInactive, callback);
 
-      expect(callback.called).to.be.false;
+      assert.ok(!callback.called);
       callback.reset();
 
       features.whenAny(testNamesAll, callback);
 
-      expect(callback.calledOnce).to.be.true;
+      assert.ok(callback.calledOnce);
     });
 
     context('when names is an empty array', function() {
       it('should never invoke function', function() {
         features.whenAny([], callback);
 
-        expect(callback.called).to.be.false;
+        assert.ok(!callback.called);
       });
     });
 
@@ -476,7 +552,7 @@ describe('featuring', function() {
       it('should never invoke function', function() {
         features.whenAny(callback);
 
-        expect(callback.called).to.be.false;
+        assert.ok(!callback.called);
       });
     });
 
@@ -484,7 +560,7 @@ describe('featuring', function() {
       it('should never invoke function', function() {
         features.whenAny(null, callback);
 
-        expect(callback.called).to.be.false;
+        assert.ok(!callback.called);
       });
     });
   });
