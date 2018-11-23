@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Alasdair Mercer, !ninja
+ * Copyright (C) 2018 Alasdair Mercer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -95,7 +95,7 @@ module.exports = function(grunt) {
           moduleName: 'featuring',
           sourceMap: true,
           sourceMapRelativePaths: true,
-          banner: '/*! featuring v<%= pkg.version %> | (C) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>, !ninja | <%= pkg.license %> License */',
+          banner: '/*! featuring v<%= pkg.version %> | (C) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %> | <%= pkg.license %> License */',
           plugins: function() {
             return [
               nodeResolve(),
