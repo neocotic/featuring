@@ -1,3 +1,7 @@
+## Version 0.2.1, 2018.11.23
+
+* switched download links from RawGit to unpkg [6fde71f](https://github.com/neocotic/featuring/commit/6fde71ff4804e55859d5b982235446bed11872ae)
+
 ## Version 0.2.0, 2018.11.23
 
 * added package-lock.json file to enable "npm audit" [42288fe](https://github.com/neocotic/featuring/commit/42288fe6bff1e913a6b2bbe8d15e54307fb14807)
