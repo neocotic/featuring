@@ -1,6 +1,6 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define('featuring', factory) :
+  typeof define === 'function' && define.amd ? define(factory) :
   (global.featuring = factory());
 }(this, (function () { 'use strict';
 
@@ -446,9 +446,9 @@
 
   var featuring = Featuring;
 
-  var index = featuring;
+  var featuring$2 = featuring;
 
-  return index;
+  return featuring$2;
 
 })));
 
