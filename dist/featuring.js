@@ -1,6 +1,6 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
+  typeof define === 'function' && define.amd ? define('featuring', factory) :
   (global.featuring = factory());
 }(this, (function () { 'use strict';
 
@@ -446,10 +446,9 @@
 
   var featuring = Featuring;
 
-  var featuring$2 = featuring;
+  var featuring$1 = featuring;
 
-  return featuring$2;
+  return featuring$1;
 
 })));
-
 //# sourceMappingURL=featuring.js.map
